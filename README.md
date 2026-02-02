@@ -1,4 +1,6 @@
 ## Project Status
+- A production-style, distributed e-commerce semantic search platform built incrementally with a focus on scalability and correctness.
+
 
 ### v0.1 – Data Ingestion & Distributed Storage (Completed)
 - Dockerized preprocessing pipeline for large-scale Amazon datasets
