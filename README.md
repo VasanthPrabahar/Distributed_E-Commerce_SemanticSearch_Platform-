@@ -2,21 +2,156 @@
 - A production-style, distributed e-commerce semantic search platform built incrementally with a focus on scalability and correctness.
 
 
-### v0.1 – Data Ingestion & Distributed Storage (Completed)
-- Dockerized preprocessing pipeline for large-scale Amazon datasets
-- 3-node CockroachDB cluster running locally
-- Schema design for products and reviews
-- Bulk data ingestion using CockroachDB IMPORT
-- Verified replication and range distribution across nodes
+---
 
-### v0.2 – Product Search Infrastructure (Completed)
+## v0.1 — Data Ingestion & Distributed Storage (Completed)
 
-- Elasticsearch-based BM25 product search
-- Official Elasticsearch (ARM64-compatible) running via Docker Compose
-- Product index with optimized mappings
-- ~10,000 products indexed successfully
-- Verified relevance ranking using multi_match queries and field boosting
+**Goal:** Build a reliable, reproducible data ingestion and distributed storage foundation using real-world, large-scale Amazon datasets.
 
+This milestone focuses entirely on correctness, scalability, and infrastructure hygiene before introducing any search or retrieval layers.
+
+**What’s included**
+- Streaming preprocessing pipeline:
+  - `scripts/convert_meta_reviews.py`
+  - Two-pass, memory-safe design (no full dataset loading)
+  - Deterministic reservoir sampling (seeded) for reproducibility
+    - ~10,000 products
+    - ~50,000 reviews
+  - Cleans HTML artifacts, malformed text, whitespace, and missing fields
+- Cleaned outputs for downstream systems:
+  - `data/out/products_small.csv`
+  - `data/out/reviews_small.csv`
+  - `data/out/asin_sample_list.txt`
+- Distributed SQL storage:
+  - 3-node CockroachDB cluster running locally via Docker Compose
+  - Schema design for `products` and `reviews`
+  - Bulk ingestion using CockroachDB `IMPORT`
+- Verification and validation:
+  - Row counts verified after import
+  - Cluster health checked
+  - Replication and range distribution across nodes validated
+- Dockerized environment:
+  - Fully reproducible local setup
+  - No dependency on host Python environment
+- Git & repository hygiene:
+  - Removed virtual environments and large binaries from Git history
+  - Clean `.gitignore` and `.dockerignore`
+  - Repository kept recruiter-grade and lightweight
+
+**Design decisions**
+- Raw Amazon datasets (20+ GB total) are intentionally excluded from the repository.
+- All preprocessing is streaming to avoid memory pressure.
+- No search, embeddings, or APIs introduced at this stage by design.
+
+**Outcome**
+- A stable, distributed storage layer ready to support search and retrieval workloads.
+- Deterministic sample datasets that can be regenerated at any time.
+
+**How to run (short)**
+```bash
+# preprocess raw data (raw JSON paths configured in script)
+python scripts/convert_meta_reviews.py
+
+# start distributed CockroachDB cluster
+docker compose up -d
+
+# bulk import CSVs into CockroachDB
+cockroach sql --insecure --host=localhost:2625
+```
+## v0.2 — Product Search Infrastructure (Completed)
+
+**Goal:** Introduce a robust lexical search layer for products using Elasticsearch (BM25) while keeping APIs and semantic retrieval intentionally out of scope.
+
+This milestone validates search relevance, indexing correctness, and distributed system integration.
+
+**What’s included**
+- Elasticsearch integration:
+  - Official Elasticsearch 8.x image (ARM64-compatible)
+  - Runs locally via Docker Compose alongside CockroachDB
+- Product indexing pipeline:
+  - `scripts/index_products_to_elasticsearch.py`
+  - Bulk indexing of ~10,000 products from `products_small.csv`
+- Index design and relevance tuning:
+  - Explicit mappings for product fields
+  - BM25 similarity (default Elasticsearch ranking)
+  - Field boosting (e.g., `title^3`) to improve relevance
+- Verification and validation:
+  - Index document counts validated
+  - Search correctness checked via `_search`
+  - Ranking behavior inspected via `_score`
+- Infrastructure-first approach:
+  - No FastAPI endpoints added yet (intentional)
+  - No semantic embeddings or vector search at this stage
+
+**Design decisions**
+- Lexical search is introduced before semantic retrieval to:
+  - Establish a strong baseline
+  - Validate indexing and relevance independently
+- API layer is deferred until both product and review retrieval are ready.
+
+**Outcome**
+- A production-style product search layer capable of fast, relevant keyword-based retrieval.
+- Clean separation between storage (CockroachDB) and search (Elasticsearch).
+
+**How to run (short)**
+```bash
+# start services (CockroachDB + Elasticsearch)
+docker compose up -d
+
+# index products into Elasticsearch
+python scripts/index_products_to_elasticsearch.py
+
+# test a sample query
+curl "http://localhost:9200/products/_search?q=wireless"
+```
+---
+
+## v0.2 — Product Search Infrastructure (Completed)
+
+**Goal:** Introduce a robust lexical search layer for products using Elasticsearch (BM25) while keeping APIs and semantic retrieval intentionally out of scope.
+
+This milestone validates search relevance, indexing correctness, and distributed system integration.
+
+**What’s included**
+- Elasticsearch integration:
+  - Official Elasticsearch 8.x image (ARM64-compatible)
+  - Runs locally via Docker Compose alongside CockroachDB
+- Product indexing pipeline:
+  - `scripts/index_products_to_elasticsearch.py`
+  - Bulk indexing of ~10,000 products from `products_small.csv`
+- Index design and relevance tuning:
+  - Explicit mappings for product fields
+  - BM25 similarity (default Elasticsearch ranking)
+  - Field boosting (e.g., `title^3`) to improve relevance
+- Verification and validation:
+  - Index document counts validated
+  - Search correctness checked via `_search`
+  - Ranking behavior inspected via `_score`
+- Infrastructure-first approach:
+  - No FastAPI endpoints added yet (intentional)
+  - No semantic embeddings or vector search at this stage
+
+**Design decisions**
+- Lexical search is introduced before semantic retrieval to:
+  - Establish a strong baseline
+  - Validate indexing and relevance independently
+- API layer is deferred until both product and review retrieval are ready.
+
+**Outcome**
+- A production-style product search layer capable of fast, relevant keyword-based retrieval.
+- Clean separation between storage (CockroachDB) and search (Elasticsearch).
+
+**How to run (short)**
+```bash
+# start services (CockroachDB + Elasticsearch)
+docker compose up -d
+
+# index products into Elasticsearch
+python scripts/index_products_to_elasticsearch.py
+
+# test a sample query
+curl "http://localhost:9200/products/_search?q=wireless"
+```
 ---
 
 ## v0.3 — FAISS-based Semantic Review Search (Completed)
