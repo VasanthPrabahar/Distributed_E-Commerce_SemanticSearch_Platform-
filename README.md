@@ -106,53 +106,7 @@ curl "http://localhost:9200/products/_search?q=wireless"
 ```
 ---
 
-## v0.2 — Product Search Infrastructure (Completed)
 
-**Goal:** Introduce a robust lexical search layer for products using Elasticsearch (BM25) while keeping APIs and semantic retrieval intentionally out of scope.
-
-This milestone validates search relevance, indexing correctness, and distributed system integration.
-
-**What’s included**
-- Elasticsearch integration:
-  - Official Elasticsearch 8.x image (ARM64-compatible)
-  - Runs locally via Docker Compose alongside CockroachDB
-- Product indexing pipeline:
-  - `scripts/index_products_to_elasticsearch.py`
-  - Bulk indexing of ~10,000 products from `products_small.csv`
-- Index design and relevance tuning:
-  - Explicit mappings for product fields
-  - BM25 similarity (default Elasticsearch ranking)
-  - Field boosting (e.g., `title^3`) to improve relevance
-- Verification and validation:
-  - Index document counts validated
-  - Search correctness checked via `_search`
-  - Ranking behavior inspected via `_score`
-- Infrastructure-first approach:
-  - No FastAPI endpoints added yet (intentional)
-  - No semantic embeddings or vector search at this stage
-
-**Design decisions**
-- Lexical search is introduced before semantic retrieval to:
-  - Establish a strong baseline
-  - Validate indexing and relevance independently
-- API layer is deferred until both product and review retrieval are ready.
-
-**Outcome**
-- A production-style product search layer capable of fast, relevant keyword-based retrieval.
-- Clean separation between storage (CockroachDB) and search (Elasticsearch).
-
-**How to run (short)**
-```bash
-# start services (CockroachDB + Elasticsearch)
-docker compose up -d
-
-# index products into Elasticsearch
-python scripts/index_products_to_elasticsearch.py
-
-# test a sample query
-curl "http://localhost:9200/products/_search?q=wireless"
-```
----
 
 ## v0.3 — FAISS-based Semantic Review Search (Completed)
 
