@@ -187,3 +187,16 @@ This milestone integrates all prior layers into a production-style query service
   - FastAPI → orchestration layer
 
 ---
+## Conclusion
+
+This project demonstrates a production-style approach to building a distributed search system by validating each layer independently before integration.
+
+Rather than relying on a single technology, the platform intentionally separates concerns:
+- CockroachDB serves as the strongly consistent system of record,
+- Elasticsearch handles fast lexical retrieval,
+- FAISS enables semantic similarity search,
+- FastAPI acts as a lightweight orchestration layer.
+
+The incremental milestone-based design ensures correctness, reproducibility, and extensibility, while keeping each component replaceable as system requirements evolve.
+
+Future milestones build on this foundation to introduce intelligent ranking, retrieval-augmented generation, and personalization.
