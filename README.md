@@ -6,12 +6,12 @@ The project is intentionally developed in milestones, where each layer is valida
 
 ---
 
-## Project Status
+## Each milestone
 
-- v0.1 — Data Ingestion & Distributed Storage ✅
-- v0.2 — Product Search Infrastructure (BM25) ✅
-- v0.3 — Semantic Review Search (FAISS) ✅
-- v0.4 — Unified FastAPI Query Gateway (Planned)
+- v0.1 — Data Ingestion & Distributed Storage 
+- v0.2 — Product Search Infrastructure (BM25) 
+- v0.3 — Semantic Review Search (FAISS) 
+- v0.4 — Unified FastAPI Query Gateway 
 
 ---
 
@@ -146,3 +146,44 @@ python scripts/build_faiss_index.py
 # query
 python scripts/query_faiss.py "long battery life" --k 5 --efSearch 200
 ```
+---
+## v0.4 — Unified FastAPI Query Gateway (Completed)
+
+**Goal:**  
+Expose a single, clean API endpoint that **orchestrates lexical search, semantic retrieval, and authoritative metadata** into one unified response.
+
+This milestone integrates all prior layers into a production-style query service.
+
+### What’s included
+- **FastAPI service**
+  - `/search` — unified search endpoint
+  - `/health` — service health check
+  - Interactive OpenAPI docs (`/docs`)
+- **Hybrid retrieval pipeline**
+  - Elasticsearch (BM25) for product candidate generation
+  - FAISS (HNSW) for semantic review retrieval
+  - CockroachDB for authoritative product metadata
+- **Human-style query support**
+  - Accepts natural language queries (e.g.  
+    *“I want a phone with long battery life and fast charging”*)
+- **Configurable ranking**
+  - `top_products`, `top_reviews`
+  - `faiss_k` oversampling
+  - Runtime `efSearch` tuning
+  - Optional filtering of semantic reviews by top-N product ASINs
+- **Defensive API design**
+  - Strict response validation via Pydantic
+  - Safe type coercion for real-world data inconsistencies
+- **Local-first, reproducible setup**
+  - All components run locally via Docker and Python
+  - Generated artifacts excluded from git
+
+### Outcome
+- A fully functional, production-style **unified search API**
+- Clean separation of responsibilities:
+  - CockroachDB → system of record
+  - Elasticsearch → lexical retrieval
+  - FAISS → semantic similarity
+  - FastAPI → orchestration layer
+
+---
